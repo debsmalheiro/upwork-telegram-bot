@@ -10,6 +10,8 @@ GitHub Actions (cron) → renova token Upwork → busca vagas por perfil (config
 
 ## Configuração
 
+> 📋 Status atual e o que falta: [PROXIMOS_PASSOS.md](PROXIMOS_PASSOS.md)
+
 ### 1. Chave da API do Upwork (faça primeiro: a aprovação leva alguns dias)
 1. Acesse https://www.upwork.com/developer/keys/apply
 2. Em **Callback URL**, use `https://localhost/callback`.
@@ -26,7 +28,8 @@ GitHub Actions (cron) → renova token Upwork → busca vagas por perfil (config
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 cp .env.example .env              # preencha os valores
-python scripts/get_upwork_token.py  # gera o UPWORK_REFRESH_TOKEN e cole no .env
+python scripts/get_upwork_token.py          # mostra a URL de autorização
+python scripts/get_upwork_token.py "<URL>"  # salva o UPWORK_REFRESH_TOKEN no .env
 python -m bot.main --dry-run      # mostra as vagas no terminal, sem enviar
 pytest -q
 ```

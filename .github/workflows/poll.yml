@@ -1,0 +1,61 @@
+name: Poll Upwork jobs
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"   # a cada 10 min (o GitHub pode atrasar alguns minutos)
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: poll-upwork
+  cancel-in-progress: false
+
+jobs:
+  poll:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - run: pip install -r requirements.txt
+
+      - name: Buscar vagas e notificar
+        run: python -m bot.main
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          UPWORK_CLIENT_ID: ${{ secrets.UPWORK_CLIENT_ID }}
+          UPWORK_CLIENT_SECRET: ${{ secrets.UPWORK_CLIENT_SECRET }}
+          UPWORK_REFRESH_TOKEN: ${{ secrets.UPWORK_REFRESH_TOKEN }}
+          UPWORK_NEW_REFRESH_TOKEN_FILE: ${{ runner.temp }}/new_refresh_token
+
+      # O Upwork troca o refresh token a cada renovação: grava o novo no secret.
+      - name: Atualizar UPWORK_REFRESH_TOKEN
+        if: always()
+        env:
+          GH_TOKEN: ${{ secrets.GH_PAT }}
+        run: |
+          f="${{ runner.temp }}/new_refresh_token"
+          if [ -s "$f" ]; then
+            gh secret set UPWORK_REFRESH_TOKEN --repo "$GITHUB_REPOSITORY" < "$f"
+            rm -f "$f"
+            echo "Refresh token atualizado."
+          fi
+
+      - name: Salvar vagas já enviadas
+        if: always()
+        run: |
+          git config user.name "upwork-bot"
+          git config user.email "upwork-bot@users.noreply.github.com"
+          git add state/seen.json
+          if ! git diff --cached --quiet; then
+            git commit -m "chore: atualiza vagas vistas [skip ci]"
+            git push
+          fi

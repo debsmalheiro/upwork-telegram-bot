@@ -1,0 +1,19 @@
+# Cada perfil = um "tipo" de vaga. A vaga chega no Telegram com a tag do perfil (#PythonDados).
+# Só "name" e "keywords" são obrigatórios; o resto é opcional.
+profiles:
+  - name: "Python Dados"
+    keywords: ["python", "data analysis", "pandas"]   # busca no Upwork (OR)
+    exclude_keywords: ["wordpress", "unpaid"]        # descarta se aparecer no título/descrição/skills
+    categories: []                                   # ex.: ["Data Science & Analytics"]; vazio = todas
+    job_type: any                                    # hourly | fixed | any
+    min_fixed_budget: 300                            # USD, só para preço fixo
+    min_hourly_rate: 25                              # USD/h, só para vagas por hora
+    client:
+      payment_verified: true
+      min_total_spent: 0                             # USD já gastos pelo cliente no Upwork
+      countries_exclude: []
+
+  # - name: "Automacao"
+  #   keywords: ["n8n", "zapier", "make.com", "automation"]
+  #   job_type: fixed
+  #   min_fixed_budget: 200
